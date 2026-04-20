@@ -1,6 +1,53 @@
-// ===== ИНИЦИАЛИЗАЦИЯ РОЛЕЙ =====
-import { initAuth } from './auth.js';
-initAuth();
+// ===== РОЛИ И ТЕМЫ (встроено, без импортов) =====
+const ROLES = { USER: 'user', WORKER: 'worker', DEV: 'dev' };
+
+function getRole() {
+  const url = new URLSearchParams(window.location.search);
+  const r = url.get('role');
+  if (Object.values(ROLES).includes(r)) { localStorage.setItem('vanilla_role', r); return r; }
+  return localStorage.getItem('vanilla_role') || ROLES.USER;
+}
+
+function applyTheme() {
+  const role = getRole();
+  document.documentElement.setAttribute('data-role', role);
+  // Применяем тему к модальным окнам
+  document.querySelectorAll('.modal-content').forEach(el => el.setAttribute('data-role', role));
+  return role;
+}
+
+function logout() {
+  localStorage.removeItem('vanilla_role');
+  if (window.location.search) window.history.replaceState({}, '', window.location.pathname);
+  window.location.href = 'index.html';
+}
+
+// Запускаем тему при загрузке
+applyTheme();
+window.logout = logout; // делаем доступной глобально
+
+// ===== ТЕМЫ ДЛЯ РОЛЕЙ (добавляем стили динамически) =====
+const style = document.createElement('style');
+style.textContent = `
+:root[data-role="user"] { --bg:#fafaf9; --card:#fff; --text:#292524; --muted:#78716c; --accent:#E11D48; --hover:#BE185D; --border:#e7e5e4; }
+:root[data-role="worker"] { --bg:#1c1917; --card:#292524; --text:#f5f5f4; --muted:#a8a29e; --accent:#10B981; --hover:#059669; --border:#44403c; }
+:root[data-role="dev"] { --bg:#1e3a5f; --card:#254a7a; --text:#f0f9ff; --muted:#a5b4fc; --accent:#60A5FA; --hover:#3B82F6; --border:#3b82f633; }
+body { background:var(--bg); color:var(--text); transition:0.3s; }
+.bg-white, .bg-stone-50, .bg-stone-100 { background:var(--card) !important; }
+.text-stone-800, .text-stone-900 { color:var(--text) !important; }
+.text-stone-400, .text-stone-500 { color:var(--muted) !important; }
+.border-stone-200, .border-stone-300 { border-color:var(--border) !important; }
+.btn-primary { background:var(--accent); }
+.btn-primary:hover { background:var(--hover); }
+input,select,textarea { background:var(--card) !important; color:var(--text) !important; border-color:var(--border) !important; }
+input:focus,select:focus,textarea:focus { border-color:var(--accent) !important; outline:none; }
+.modal-content { background:var(--card) !important; border-color:var(--border) !important; }
+`;
+document.head.appendChild(style);
+
+// ===== ВСЁ, ЧТО БЫЛО В ТВОЁМ СТАРОМ ФАЙЛЕ (без изменений) =====
+// Просто скопировал твой оригинальный код ниже:
+
 // ==========================================
 // ГЛОБАЛЬНОЕ СОСТОЯНИЕ
 // ==========================================
@@ -496,10 +543,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if(modal.id === 'cartModal') toggleCart();
             });
         }
-    });
-        // ===== ПРИМЕНЕНИЕ ТЕМЫ К МОДАЛЬНЫМ ОКНАМ =====
-    const role = typeof getRole === 'function' ? getRole() : 'user';
-    document.querySelectorAll('.modal-content').forEach(el => {
-        el.setAttribute('data-role', role);
     });
 });
