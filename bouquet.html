@@ -252,6 +252,12 @@
     </div>
 
     <!-- Скрипты -->
-    <script src="js/script.js"></script>
+    <script type="module">
+  import { initAuth, logout, requireRole } from './js/auth.js';
+  initAuth();
+  window.logout = logout;
+  window.requireRole = requireRole;
+</script>
+<script type="module" src="js/script.js"></script>
 </body>
 </html>
