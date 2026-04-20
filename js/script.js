@@ -497,4 +497,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
+        // ===== ПРИМЕНЕНИЕ ТЕМЫ К МОДАЛЬНЫМ ОКНАМ =====
+    const role = typeof getRole === 'function' ? getRole() : 'user';
+    document.querySelectorAll('.modal-content').forEach(el => {
+        el.setAttribute('data-role', role);
+    });
 });
